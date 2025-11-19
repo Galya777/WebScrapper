@@ -7,6 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="1" />
+        <module name="mpr2025_KN_FN_java_linux" />
       </profile>
     </annotationProcessing>
   </component>
