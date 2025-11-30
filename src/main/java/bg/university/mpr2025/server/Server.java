@@ -1,7 +1,10 @@
 package bg.university.mpr2025.server;
 
+import bg.university.mpr2025.models.ScrapeRequest;
 import bg.university.mpr2025.models.ScrapeResult;
+import bg.university.mpr2025.scrapper.ParallelScraper;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -12,8 +15,8 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 public class Server {
     private static final int BUFFER_SIZE = 1024;
@@ -58,13 +61,13 @@ public class Server {
                             accept(selector, key);
                         } else if (key.isReadable()) {
                             SocketChannel clientChannel = (SocketChannel) key.channel();
-                            String request = readFromClient(clientChannel);
-                            if (request == null) {
+                            String requestJson = readFromClient(clientChannel);
+                            if (requestJson == null) {
                                 continue; // client closed
                             }
-                            System.out.println("Received request: " + request.trim());
+                            System.out.println("Received request: " + requestJson.trim());
 
-                            String response = buildResponseJson();
+                            String response = buildResponseJson(requestJson);
                             writeToClientAndClose(clientChannel, response + "\n");
                         }
                     }
@@ -122,12 +125,40 @@ public class Server {
         }
     }
 
-    private String buildResponseJson() {
-        // Build a placeholder scrape result similar to the previous blocking implementation
+    private String buildResponseJson(String requestJson) {
         ScrapeResult result = new ScrapeResult();
-        result.setStatus("ok");
-        result.setProcessingTimeMs(50);
-        result.setResults(Arrays.asList("Result 1", "Result 2", "Result 3"));
+        long startTime = System.currentTimeMillis();
+        
+        try {
+            // Parse the request
+            ScrapeRequest request = gson.fromJson(requestJson, ScrapeRequest.class);
+            
+            // Validate the request
+            if (request == null || request.url == null || request.url.trim().isEmpty()) {
+                result.setStatus("error");
+                result.setResults(List.of("URL is required"));
+            } else {
+                // Use ParallelScraper to get the results
+                ParallelScraper scraper = new ParallelScraper();
+                int threads = request.threads > 0 ? request.threads : 1;
+                int rows = request.rows > 0 ? request.rows : 10; // Default to 10 rows if not specified
+                
+                try {
+                    List<String> scrapedResults = scraper.scrape(request.url, threads, rows);
+                    result.setStatus("success");
+                    result.setResults(scrapedResults);
+                } catch (Exception e) {
+                    result.setStatus("error");
+                    result.setResults(List.of("Error during scraping: " + e.getMessage()));
+                }
+            }
+        } catch (JsonSyntaxException e) {
+            result.setStatus("error");
+            result.setResults(List.of("Invalid JSON request: " + e.getMessage()));
+        }
+        
+        // Calculate processing time
+        result.setProcessingTimeMs(System.currentTimeMillis() - startTime);
         return gson.toJson(result);
     }
 }

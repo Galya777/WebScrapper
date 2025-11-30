@@ -1,0 +1,88 @@
+@startuml
+' Class Diagram for Web Scraper Application
+
+' Main Classes
+class ScrapeRequest {
+  +String url
+  +int threads
+  +int rows
+}
+
+class ScrapeResult {
+  -String status
+  -long processingTimeMs
+  -List<String> results
+  +getStatus()
+  +setStatus(String)
+  +getProcessingTimeMs()
+  +setProcessingTimeMs(long)
+  +getResults()
+  +setResults(List<String>)
+}
+
+class ParallelScraper {
+  +List<String> scrape(String url, int threads, int rows)
+}
+
+' Server Classes
+abstract class AbstractServer {
+  #int port
+  #volatile boolean running
+  #Gson gson
+  +start()
+  +stop()
+  {abstract} handleRequest(String request)
+}
+
+class Server {
+  -Selector selector
+  -ByteBuffer buffer
+  +start()
+  +stop()
+  -handleClient(SelectionKey key)
+  -acceptClient(SelectionKey key)
+}
+
+class ThreadPoolServer {
+  -ExecutorService executor
+  -ServerSocket serverSocket
+  +start()
+  +stop()
+  -handleClient(Socket client)
+}
+
+class SelectorServer {
+  -Selector selector
+  -ExecutorService workerPool
+  +start()
+  +stop()
+  -acceptClient(SelectionKey key)
+  -readFromClient(SelectionKey key)
+  -processRequest(SocketChannel client, String request)
+}
+
+' Client Class
+class Client {
+  -String host
+  -int port
+  -Gson gson
+  +runInteractive()
+  -sendRequest(ScrapeRequest request)
+}
+
+' Benchmark Class
+class Benchmark {
+  +main(String[] args)
+}
+
+' Relationships
+ScrapeRequest -- ScrapeResult : returns >
+ParallelScraper --> ScrapeRequest : uses >
+AbstractServer <|-- Server
+AbstractServer <|-- ThreadPoolServer
+AbstractServer <|-- SelectorServer
+Client --> ScrapeRequest : creates >
+Client --> ScrapeResult : receives >
+Benchmark --> ParallelScraper : tests >
+
+@enduml

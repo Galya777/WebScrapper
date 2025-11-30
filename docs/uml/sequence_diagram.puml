@@ -1,0 +1,38 @@
+@startuml
+' Sequence Diagram for Web Scraper Application
+
+title Web Scraper - Client-Server Interaction
+
+actor User
+participant Client
+participant Server
+participant ParallelScraper
+participant Jsoup
+
+alt Basic Flow: Successful Scraping
+    User -> Client: Enters URL, threads, rows
+    Client -> Client: Creates ScrapeRequest
+    Client -> Server: Sends request (JSON)
+    
+    Server -> Server: Parses JSON to ScrapeRequest
+    Server -> ParallelScraper: scrape(url, threads, rows)
+    ParallelScraper -> Jsoup: connect(url)
+    Jsoup --> ParallelScraper: Document
+    
+    loop For each element
+        ParallelScraper -> ParallelScraper: Process element in thread
+    end
+    
+    ParallelScraper --> Server: List<String> results
+    Server -> Server: Creates ScrapeResult
+    Server --> Client: Sends response (JSON)
+    Client --> User: Displays results
+else Error Flow: Invalid URL
+    User -> Client: Enters invalid URL
+    Client -> Server: Sends request
+    Server -> Server: Validates URL
+    Server --> Client: Returns error message
+    Client --> User: Displays error
+end
+
+@enduml

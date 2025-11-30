@@ -1,0 +1,49 @@
+@startuml
+' Deployment Diagram for Web Scraper Application
+
+title Web Scraper - Deployment Diagram
+
+node "Client Machine" as client {
+  component "Client Application" as client_app
+  component "User Interface" as ui
+  client_app -- ui : interacts
+}
+
+node "Server Machine" as server {
+  component "Server Application" as server_app {
+    [ThreadPoolServer]
+    [SelectorServer]
+    [NIO Server]
+  }
+  
+  database "Scraped Data" as data
+  
+  server_app -- data : stores/retrieves
+  
+  component "ParallelScraper" as scraper
+  component "Jsoup Library" as jsoup
+  
+  server_app -- scraper : uses
+  scraper -- jsoup : depends on
+}
+
+cloud "Internet" as internet {
+  [Target Websites] as websites
+}
+
+client --> internet : HTTP/HTTPS
+server --> internet : HTTP/HTTPS
+
+note right of client_app
+  Can be run on multiple
+  machines simultaneously
+end note
+
+note left of server_app
+  Can be deployed as:
+  - Single instance
+  - Load-balanced cluster
+  - Microservices
+end note
+
+@enduml
