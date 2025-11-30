@@ -37,15 +37,47 @@
    mvn clean package
    ```
 
-3. Стартирайте сървъра:
-   ```bash
-   java -jar target/mpr2025_KN_FN_java_linux-1.0-SNAPSHOT.jar server
-   ```
+### Варианти за стартиране
 
-4. В друг терминал, стартирайте клиента:
-   ```bash
-   java -jar target/mpr2025_KN_FN_java_linux-1.0-SNAPSHOT.jar client
-   ```
+#### Стартиране на сървър
+```bash
+java -jar target/mpr2025_KN_FN_java_linux-1.0-SNAPSHOT.jar server
+```
+
+#### Стартиране на клиент
+```bash
+java -jar target/mpr2025_KN_FN_java_linux-1.0-SNAPSHOT.jar client
+```
+
+#### Пример за уеб скрейпинг
+```bash
+java -jar target/mpr2025_KN_FN_java_linux-1.0-SNAPSHOT.jar scraper
+```
+
+При стартиране на скрейпъра ще бъдете подканени да въведете:
+1. URL адрес (по подразбиране: https://techcrunch.com)
+2. Брой нишки за паралелна обработка (по подразбиране: 4)
+3. Брой резултати за показване (по подразбиране: 10)
+
+Примерен изход:
+```
+=== Simple Web Scraper Example ===
+
+Enter URL to scrape [https://techcrunch.com]: 
+Enter number of threads (1-10) [4]: 
+Enter number of rows to return (1-100) [10]: 
+
+Scraping https://techcrunch.com with 4 threads...
+
+=== Scraping Results (10 items) ===
+
+1. Latest Tech News Headlines
+2. Breaking technology news and analysis
+3. Startup News and Business Insights
+...
+```
+
+Скриптът ще извлече заглавията и съдържанието на статиите от TechCrunch и ще ги изведе в конзолата.
 
 ## Архитектура и дизайн
 

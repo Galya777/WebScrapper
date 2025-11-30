@@ -38,7 +38,7 @@ src/
 
 ## Running the Application
 
-The application can be run in two modes: server mode and client mode.
+The application can be run in three modes: server mode, client mode, and scraper mode.
 
 ### Running the Server
 
@@ -49,9 +49,6 @@ The application can be run in two modes: server mode and client mode.
    
    # Or using the compiled JAR
    java -jar target/mpr2025_KN_FN_java_linux-1.0-SNAPSHOT.jar server
-   
-   # Or using direct classpath (useful if you haven't created a JAR)
-   java -cp target/classes:$(find ~/.m2/repository -name '*.jar' | tr '\n' ':') bg.university.mpr2025.Main server
    ```
 
 2. The server will start on port 5555 by default.
@@ -65,12 +62,45 @@ The application can be run in two modes: server mode and client mode.
    
    # Or using the compiled JAR
    java -jar target/mpr2025_KN_FN_java_linux-1.0-SNAPSHOT.jar client
-   
-   # Or using direct classpath (useful if you haven't created a JAR)
-   java -cp target/classes:$(find ~/.m2/repository -name '*.jar' | tr '\n' ':') bg.university.mpr2025.Main client
    ```
 
 2. The client will connect to the server at localhost:5555 and provide an interactive interface.
+
+### Running the Web Scraper Example
+
+1. Run the web scraper with the following command:
+   ```bash
+   # Using Maven
+   mvn exec:java -Dexec.mainClass="bg.university.mpr2025.Main" -Dexec.args="scraper"
+   
+   # Or using the compiled JAR
+   java -jar target/mpr2025_KN_FN_java_linux-1.0-SNAPSHOT.jar scraper
+   ```
+
+2. When prompted, you can specify:
+   - URL to scrape (default: https://techcrunch.com)
+   - Number of threads (default: 4)
+   - Number of results to display (default: 10)
+
+Example output:
+```
+=== Simple Web Scraper Example ===
+
+Enter URL to scrape [https://techcrunch.com]: 
+Enter number of threads (1-10) [4]: 
+Enter number of rows to return (1-100) [10]: 
+
+Scraping https://techcrunch.com with 4 threads...
+
+=== Scraping Results (10 items) ===
+
+1. Latest Tech News Headlines
+2. Breaking technology news and analysis
+3. Startup News and Business Insights
+...
+```
+
+The scraper will extract article titles and content from the specified website and display them in the console.
 
 ## Development
 
